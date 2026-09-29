@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5학년 1학기 6. 다각형의 둘레와 넓이 - 단원을 준비해요</title>
+<style>
+:root{
+  --bg:#FFF8E7; --card:#FFFFFF; --ink:#33405A; --mint:#BDEFD8; --mint-d:#2E9E75;
+  --sky:#CFE8FF; --sky-d:#2F7BC4; --pink:#FFD6E0; --pink-d:#D9527A; --yellow:#FFE9A8; --line:#E6DCC3;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#FFF8E7;} /* 학습용: 항상 밝은 톤 유지 */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:"Jua","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:18px;line-height:1.55;
+  padding:max(12px,env(safe-area-inset-top)) 14px max(20px,env(safe-area-inset-bottom));
+  display:flex;justify-content:center;
+}
+#app{width:100%;max-width:560px}
+.screen{display:none}.screen.on{display:block}
+.card{background:var(--card);border:3px solid var(--line);border-radius:26px;padding:20px 18px;box-shadow:0 6px 0 var(--line)}
+h1{font-size:26px;line-height:1.35;margin:8px 0 10px}
+.badge{display:inline-block;background:var(--yellow);border-radius:999px;padding:4px 14px;font-weight:700;font-size:18px}
+.big-emoji{font-size:72px;text-align:center;margin:10px 0}
+.center{text-align:center}
+.muted{opacity:.8}
+.btn{
+  display:block;width:100%;min-height:58px;border:0;border-radius:18px;
+  font:inherit;font-weight:800;font-size:20px;color:#fff;background:var(--sky-d);
+  box-shadow:0 5px 0 #1E5A93;margin-top:14px;cursor:pointer;padding:12px 16px;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #1E5A93}
+.btn.green{background:var(--mint-d);box-shadow:0 5px 0 #1F7556}
+.btn.green:active{box-shadow:0 1px 0 #1F7556}
+.btn.pink{background:var(--pink-d);box-shadow:0 5px 0 #A93B5C}
+.btn.pink:active{box-shadow:0 1px 0 #A93B5C}
+.btn:disabled{background:#C9CFD8;box-shadow:0 5px 0 #A7AEBA;cursor:not-allowed}
+.btn:focus-visible,.opt:focus-visible,input:focus-visible{outline:4px solid #FFB020;outline-offset:2px}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+/* progress */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:800}
+.bar{height:16px;background:#fff;border:3px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7FD8B5,#7FBDF2);border-radius:999px;transition:width .4s}
+.unit{display:inline-block;background:var(--sky);border-radius:12px;padding:2px 12px;font-weight:700;font-size:18px;margin-bottom:10px}
+.unit.t2{background:var(--pink)}.unit.t3{background:var(--mint)}
+.q{font-size:21px;font-weight:700;margin-bottom:12px;word-break:keep-all}
+.fig{display:flex;justify-content:center;margin:8px 0 12px;background:#FBFAF3;border-radius:16px;padding:8px}
+.fig svg{max-width:100%;height:auto}
+.ans{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap}
+.ans input{
+  width:9em;max-width:60%;height:60px;font:inherit;font-size:26px;font-weight:800;text-align:center;
+  border:3px solid var(--sky-d);border-radius:16px;background:#F5FAFF;color:var(--ink);
+}
+.ans span{font-size:22px;font-weight:800}
+.opts{display:grid;gap:10px}
+.opt{
+  min-height:58px;text-align:left;font:inherit;font-size:19px;font-weight:700;color:var(--ink);
+  background:#F5FAFF;border:3px solid var(--sky);border-radius:16px;padding:10px 14px;cursor:pointer;
+}
+.opt.sel{background:var(--sky);border-color:var(--sky-d)}
+.opt.ok{background:var(--mint);border-color:var(--mint-d)}
+.opt.no{background:var(--pink);border-color:var(--pink-d)}
+.fb{margin-top:14px;border-radius:18px;padding:14px 16px;display:none}
+.fb.ok{display:block;background:var(--mint);border:3px solid var(--mint-d);animation:pop .4s}
+.fb.no{display:block;background:var(--pink);border:3px solid var(--pink-d);animation:pop .3s}
+.fb b{font-size:22px}
+.fb .hint{margin-top:6px;background:#fff8;border-radius:12px;padding:8px 10px}
+@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9}
+.confetti span{position:absolute;top:-40px;font-size:28px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(360deg);opacity:.9}}
+.score{font-size:52px;font-weight:900;color:var(--sky-d);text-align:center;line-height:1.2}
+.sum{display:grid;gap:8px;margin-top:12px}
+.sum div{display:flex;justify-content:space-between;background:#FBFAF3;border-radius:12px;padding:8px 14px;font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="start" class="screen on">
+  <div class="card center">
+    <div class="big-emoji">📐</div>
+    <span class="badge">5학년 1학기</span>
+    <h1>6. 다각형의 둘레와 넓이<br>단원을 준비해요 📐</h1>
+    <p class="muted">3·4학년에서 배운 길이, 삼각형, 사각형!<br>12문제로 내 실력을 확인해 봐요.</p>
+    <button class="btn green" id="goBtn">학습 시작하기</button>
+  </div>
+</section>
+
+<section id="quiz" class="screen">
+  <div class="top"><span id="unitTag"></span><span id="prog">1 / 12</span></div>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="card">
+    <div id="unitLabel" class="unit"></div>
+    <div id="qText" class="q"></div>
+    <div id="fig" class="fig"></div>
+    <div id="answer"></div>
+    <button class="btn" id="checkBtn">정답 확인</button>
+    <div id="fb" class="fb" role="status" aria-live="polite"></div>
+    <div class="row" id="after" style="display:none"></div>
+  </div>
+</section>
+
+<section id="result" class="screen">
+  <div class="card center">
+    <div class="big-emoji" id="rEmoji">🏆</div>
+    <div class="score" id="rScore"></div>
+    <p id="rMsg" style="font-weight:700;margin-top:6px"></p>
+    <div class="sum" id="rSum"></div>
+    <button class="btn green" id="retryBtn">다시 풀기</button>
+  </div>
+</section>
+
+</div>
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* ---------- SVG 도우미 ---------- */
+const T = (x,y,s,extra='') => `<text x="${x}" y="${y}" font-size="18" font-weight="700" fill="#33405A" text-anchor="middle" ${extra}>${s}</text>`;
+function ruler(mm){ // 0~10 cm 자, 막대 끝이 mm 위치
+  const u=40, x0=20; let t='';
+  for(let i=0;i<=100;i++){
+    const h = i%10===0?22:(i%5===0?16:10), x=x0+i*u/10;
+    t+=`<line x1="${x}" y1="60" x2="${x}" y2="${60+h}" stroke="#7a6a3a" stroke-width="${i%10===0?2:1}"/>`;
+    if(i%10===0) t+=`<text x="${x}" y="100" font-size="16" text-anchor="middle" fill="#33405A">${i/10}</text>`;
+  }
+  const end=x0+mm*u/10;
+  return `<svg viewBox="0 0 440 110" width="440" role="img" aria-label="자와 연필">
+   <rect x="10" y="56" width="420" height="52" rx="6" fill="#FFE9A8" stroke="#D9C27A" stroke-width="2"/>${t}
+   <rect x="${x0}" y="20" width="${end-x0}" height="22" rx="4" fill="#7FBDF2" stroke="#2F7BC4" stroke-width="2"/>
+   <line x1="${end}" y1="18" x2="${end}" y2="60" stroke="#D9527A" stroke-width="2" stroke-dasharray="3 3"/></svg>`;
+}
+const isoTri = `<svg viewBox="0 0 240 140" width="240" role="img" aria-label="이등변삼각형"><polygon points="120,15 30,115 210,115" fill="#CFE8FF" stroke="#2F7BC4" stroke-width="4" stroke-linejoin="round"/>
+ ${T(60,58,'7 cm','transform="rotate(-48 60 58)"')}${T(180,58,'7 cm','transform="rotate(48 180 58)"')}${T(120,136,'? cm')}
+ <line x1="66" y1="60" x2="74" y2="52" stroke="#D9527A" stroke-width="3" opacity="0"/></svg>`;
+const tri3 = (a,b,c,col)=>`<svg viewBox="0 0 240 130" width="240"><polygon points="${a} ${b} ${c}" fill="${col}" stroke="#2F7BC4" stroke-width="4" stroke-linejoin="round"/></svg>`;
+const equi = `<svg viewBox="0 0 240 140" width="240" role="img" aria-label="정삼각형"><polygon points="120,15 40,125 200,125" fill="#BDEFD8" stroke="#2E9E75" stroke-width="4" stroke-linejoin="round"/>${T(120,146,'5 cm')}</svg>`;
+const rect = `<svg viewBox="0 0 260 150" width="260" role="img" aria-label="직사각형"><rect x="40" y="20" width="180" height="90" fill="#FFD6E0" stroke="#D9527A" stroke-width="4"/>${T(130,140,'8 cm')}${T(20,70,'5 cm','transform="rotate(-90 20 70)"')}</svg>`;
+const para = `<svg viewBox="0 0 280 140" width="280" role="img" aria-label="평행사변형"><polygon points="70,20 250,20 210,110 30,110" fill="#BDEFD8" stroke="#2E9E75" stroke-width="4" stroke-linejoin="round"/>${T(160,13,'9 cm')}${T(105,135,'')}${T(28,62,'6 cm','transform="rotate(-66 28 62)"')}</svg>`;
+const perp = `<svg viewBox="0 0 260 130" width="260" role="img" aria-label="한 직선에 수직인 두 직선"><line x1="10" y1="65" x2="250" y2="65" stroke="#33405A" stroke-width="4"/><line x1="80" y1="10" x2="80" y2="120" stroke="#2F7BC4" stroke-width="4"/><line x1="180" y1="10" x2="180" y2="120" stroke="#D9527A" stroke-width="4"/>
+ <path d="M80 55h10v10" fill="none" stroke="#33405A" stroke-width="2"/><path d="M180 55h10v10" fill="none" stroke="#33405A" stroke-width="2"/></svg>`;
+
+/* ---------- 문제 데이터 ---------- */
+const Q = [
+ {u:1,q:'3 cm 5 mm = <b>___</b> mm 입니다.',type:'num',unit:'mm',a:35,
+  h:'1 cm = 10 mm 예요. 3 cm = 30 mm 이니까 30 mm + 5 mm = 35 mm!'},
+ {u:1,q:'200 cm = <b>___</b> m 입니다.',type:'num',unit:'m',a:2,
+  h:'1 m = 100 cm 예요. 200 cm는 100 cm가 2번이니까 2 m!'},
+ {u:1,q:'자로 잰 연필의 길이는 얼마일까요? (0부터 시작해요)',fig:ruler(73),type:'mc',
+  c:['7 cm 3 mm','7 cm 6 mm','8 cm 3 mm','73 cm'],a:0,
+  h:'작은 눈금 한 칸은 1 mm예요. 7 cm에서 작은 눈금 3칸 더 갔으니 7 cm 3 mm!'},
+ {u:1,q:'8 cm 4 mm − 5 cm 7 mm = <b>___</b> mm 입니다.',type:'num',unit:'mm',a:27,
+  h:'mm로 바꿔 계산해요. 84 mm − 57 mm = 27 mm (2 cm 7 mm)!'},
+ {u:2,q:'한 변이 5 cm인 정삼각형의 세 변의 길이의 합은 몇 cm일까요?',fig:equi,type:'num',unit:'cm',a:15,
+  h:'정삼각형은 세 변의 길이가 모두 같아요. 5 + 5 + 5 = 15(cm)!'},
+ {u:2,q:'세 변의 길이의 합이 20 cm인 이등변삼각형이에요. 길이가 같은 두 변이 7 cm일 때, 나머지 한 변은 몇 cm일까요?',fig:isoTri,type:'num',unit:'cm',a:6,
+  h:'이등변삼각형은 두 변의 길이가 같아요. 20 − 7 − 7 = 6(cm)!'},
+ {u:2,q:'세 각이 30°, 40°, 110°인 삼각형은 어떤 삼각형일까요?',type:'mc',
+  c:['예각삼각형','직각삼각형','둔각삼각형','정삼각형'],a:2,
+  h:'한 각이 둔각(90°보다 크고 180°보다 작은 각)이면 둔각삼각형! 110°가 둔각이에요.'},
+ {u:2,q:'직각삼각형에 대한 설명으로 옳은 것은 무엇일까요?',fig:tri3('30,110','30,20','200,110','#FFE9A8'),type:'mc',
+  c:['세 각이 모두 예각이에요','한 각이 직각이에요','한 각이 둔각이에요','세 변의 길이가 모두 같아요'],a:1,
+  h:'직각삼각형은 한 각이 직각(90°)인 삼각형이에요.'},
+ {u:3,q:'한 직선에 수직인 두 직선은 서로 어떤 관계일까요?',fig:perp,type:'mc',
+  c:['서로 평행해요','서로 수직이에요','서로 합동이에요','알 수 없어요'],a:0,
+  h:'한 직선에 수직인 두 직선은 서로 만나지 않아요. 이런 두 직선을 평행하다고 해요.'},
+ {u:3,q:'마름모에 대한 설명으로 옳은 것은 무엇일까요?',type:'mc',
+  c:['네 각이 모두 직각이에요','평행한 변이 한 쌍뿐이에요','네 변의 길이가 모두 같아요','마주 보는 변의 길이가 달라요'],a:2,
+  h:'마름모는 네 변의 길이가 모두 같은 사각형이에요. (네 각이 모두 직각인 것은 직사각형)'},
+ {u:3,q:'가로 8 cm, 세로 5 cm인 직사각형의 테두리(네 변)의 길이는 몇 cm일까요?',fig:rect,type:'num',unit:'cm',a:26,
+  h:'마주 보는 변의 길이가 같아요. 8 + 5 + 8 + 5 = 26(cm)!'},
+ {u:3,q:'이웃한 두 변이 9 cm, 6 cm인 평행사변형의 네 변의 길이의 합은 몇 cm일까요?',fig:para,type:'num',unit:'cm',a:30,
+  h:'평행사변형은 마주 보는 변의 길이가 같아요. 9 + 6 + 9 + 6 = 30(cm)!'}
+];
+const UN = {1:'3학년 길이와 시간',2:'4학년 삼각형',3:'4학년 사각형'};
+
+/* ---------- 상태 ---------- */
+const $ = id => document.getElementById(id);
+let i=0, score=0, tries=0, firstOK=[], sel=null;
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); window.scrollTo(0,0); }
+
+function render(){
+  const q=Q[i]; tries=0; sel=null;
+  $('prog').textContent=`${i+1} / ${Q.length}`;
+  $('barFill').style.width=(i/Q.length*100)+'%';
+  $('unitLabel').textContent=UN[q.u]; $('unitLabel').className='unit t'+q.u;
+  $('qText').innerHTML=`<span style="color:var(--sky-d)">Q${i+1}.</span> `+q.q;
+  $('fig').innerHTML=q.fig||''; $('fig').style.display=q.fig?'flex':'none';
+  const a=$('answer'); a.innerHTML='';
+  if(q.type==='num'){
+    a.className='ans';
+    a.innerHTML=`<input id="inp" type="text" inputmode="decimal" autocomplete="off" aria-label="정답 입력" placeholder="?"><span>${q.unit}</span>`;
+    $('inp').addEventListener('input',()=>$('checkBtn').disabled=!$('inp').value.trim());
+    $('inp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!$('checkBtn').disabled)check()});
+    $('checkBtn').disabled=true;
+  }else{
+    a.className='opts';
+    q.c.forEach((t,k)=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.textContent=`${'①②③④'[k]} ${t}`;
+      b.onclick=()=>{ if(b.disabled)return; sel=k; [...a.children].forEach((x,n)=>x.classList.toggle('sel',n===k)); $('checkBtn').disabled=false; };
+      a.appendChild(b);
+    });
+    $('checkBtn').disabled=true;
+  }
+  $('checkBtn').style.display='block';
+  $('fb').className='fb'; $('fb').innerHTML='';
+  $('after').style.display='none'; $('after').innerHTML='';
+  if(q.type==='num') setTimeout(()=>$('inp').focus({preventScroll:true}),50);
+}
+
+function check(){
+  const q=Q[i]; let ok;
+  if(q.type==='num'){
+    const v=parseFloat($('inp').value.replace(/[^\d.\-]/g,''));
+    ok = v===q.a;
+  }else ok = sel===q.a;
+  tries++;
+  const fb=$('fb'), after=$('after'); after.innerHTML=''; after.style.display='flex';
+  const last=i===Q.length-1, nextTxt=last?'결과 보기 🏁':'다음 문제 ▶';
+  if(ok){
+    if(tries===1){score++;firstOK[i]=true;}
+    fb.className='fb ok'; fb.innerHTML=`<b>🎉 정답이에요! 참 잘했어요!</b><div class="hint">${q.h}</div>`;
+    lockInputs(); $('checkBtn').style.display='none';
+    addBtn(nextTxt,'green',next); party();
+  }else{
+    firstOK[i]=firstOK[i]||false;
+    fb.className='fb no'; fb.innerHTML=`<b>💡 조금만 더 생각해 봐요!</b><div class="hint">${q.h}</div>`;
+    $('checkBtn').style.display='none';
+    addBtn('다시 풀기 ✏️','pink',retry); addBtn(nextTxt,'',next);
+  }
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function addBtn(t,c,fn){const b=document.createElement('button');b.className='btn '+c;b.textContent=t;b.onclick=fn;$('after').appendChild(b);}
+function lockInputs(){ if($('inp'))$('inp').disabled=true; document.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(k===Q[i].a)b.classList.add('ok');}); }
+function retry(){
+  $('fb').className='fb'; $('after').style.display='none'; $('checkBtn').style.display='block';
+  if(Q[i].type==='num'){$('inp').value='';$('checkBtn').disabled=true;$('inp').focus();}
+  else{sel=null;$('checkBtn').disabled=true;document.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));}
+}
+function next(){ if(i<Q.length-1){i++;render();}else finish(); }
+function party(){
+  const c=$('confetti'), em=['🎉','⭐','✨','🎈','🌟'];
+  for(let n=0;n<18;n++){const s=document.createElement('span');s.textContent=em[n%em.length];
+    s.style.left=Math.random()*100+'%';s.style.animationDelay=Math.random()*.4+'s';c.appendChild(s);setTimeout(()=>s.remove(),2200);}
+}
+function finish(){
+  $('barFill').style.width='100%';
+  $('rScore').textContent=`${Q.length}점 만점에 ${score}점!`;
+  let e,m;
+  if(score===12){e='🏆';m='완벽해요! 새 단원을 배울 준비가 끝났어요!';}
+  else if(score>=10){e='🎉';m='아주 잘했어요! 틀린 문제만 다시 살펴보면 완벽해요.';}
+  else if(score>=7){e='😊';m='잘하고 있어요! 헷갈린 부분을 복습하고 새 단원을 시작해요.';}
+  else{e='💪';m='괜찮아요! 해설을 다시 읽고 한 번 더 도전해 봐요.';}
+  $('rEmoji').textContent=e; $('rMsg').textContent=m;
+  const cnt={1:[0,0],2:[0,0],3:[0,0]};
+  Q.forEach((q,k)=>{cnt[q.u][1]++; if(firstOK[k])cnt[q.u][0]++;});
+  $('rSum').innerHTML=[1,2,3].map(u=>`<div><span>${UN[u]}</span><span>${cnt[u][0]} / ${cnt[u][1]}</span></div>`).join('');
+  show('result'); if(score>=10)party();
+}
+function reset(){i=0;score=0;firstOK=[];show('quiz');render();}
+
+$('goBtn').onclick=reset;
+$('retryBtn').onclick=reset;
+$('checkBtn').onclick=check;
+</script>
+</body>
+</html>

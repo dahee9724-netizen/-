@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>평행사변형의 넓이 익힘 다지기</title>
+<style>
+:root{--bg:#fff8f0;--card:#fff;--ink:#4a3f55;--pink:#ffb3c6;--blue:#a8d8ff;--mint:#b8f0d8;--yellow:#ffe9a8;--ok:#2fa36b;--no:#e5546b;--line:#f1e4d8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;font-size:18px;line-height:1.55;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:520px;margin:0 auto;padding:14px}
+header{background:linear-gradient(135deg,var(--yellow),var(--pink));border-radius:20px;padding:14px 16px;text-align:center}
+header small{display:block;font-size:13px;opacity:.8}
+header h1{font-size:18px;margin:4px 0 0;line-height:1.4}
+.prog{display:flex;align-items:center;gap:10px;margin:14px 2px}
+.bar{flex:1;height:14px;background:#f1e4d8;border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8fd3ff,#7be0b5);border-radius:9px;transition:width .4s}
+.num{font-weight:800;font-size:18px;min-width:56px;text-align:right}
+.card{background:var(--card);border-radius:22px;padding:18px;box-shadow:0 6px 18px rgba(120,90,60,.10)}
+.badge{display:inline-block;background:var(--blue);border-radius:14px;padding:3px 12px;font-size:14px;font-weight:700;margin-bottom:8px}
+.q{font-size:19px;font-weight:600;margin:4px 0 10px;word-break:keep-all}
+.fig{background:#fffdf8;border:2px dashed var(--line);border-radius:14px;padding:6px;margin:8px 0 12px}
+.fig svg{width:100%;height:auto;display:block}
+.fig svg text{font-family:inherit}
+.ansrow{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.ansrow label{font-weight:700}
+input[type=number]{width:140px;font-size:26px;font-weight:700;text-align:center;padding:10px;border:3px solid var(--pink);border-radius:14px;background:#fff8fa;color:var(--ink);outline:none}
+input[type=number]:focus{border-color:#ff8fab}
+input:disabled{opacity:.7}
+.unit{font-size:22px;font-weight:800}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.chip{flex:1;min-width:64px;min-height:56px;font-size:22px;font-weight:800;border:3px solid var(--blue);background:#f2faff;color:var(--ink);border-radius:16px;font-family:inherit}
+.chip.on{background:var(--blue);border-color:#5ab4f5}
+.chip:disabled{opacity:.75}
+.btn{width:100%;min-height:58px;font-size:20px;font-weight:800;border:0;border-radius:18px;background:var(--pink);color:#5a2438;margin-top:12px;font-family:inherit;box-shadow:0 4px 0 #f08aa6}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f08aa6}
+.btn.next{background:var(--mint);box-shadow:0 4px 0 #86d6b6;color:#1d5a44}
+.fb{margin-top:12px;border-radius:16px;padding:12px 14px;font-size:17px;display:none;word-break:keep-all}
+.fb.ok{display:block;background:#e6f9ef;border:2px solid var(--ok)}
+.fb.no{display:block;background:#fff0f2;border:2px solid var(--no)}
+.fb b.t{font-size:20px}
+.fb .formula{background:#fff;border-radius:10px;padding:6px 10px;margin:8px 0;font-weight:800;text-align:center;border:1px dashed #cdb}
+.toast{color:var(--no);font-weight:700;margin-top:6px;min-height:24px;font-size:16px}
+.res{text-align:center}
+.res .big{font-size:56px;font-weight:900;margin:6px 0}
+.res .em{font-size:64px}
+.res p{margin:6px 0}
+.wrongs{background:#fff8e1;border-radius:14px;padding:10px;font-size:16px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><small>5학년 1학기</small><h1>6. 다각형의 둘레와 넓이 - 평행사변형의 넓이 익힘 다지기 📐</h1></header>
+  <div id="app"></div>
+</div>
+<script>
+/* ---------- 평행사변형 SVG ---------- */
+function para(o){
+  var x0=45,w=170,s=o.s==null?40:o.s,mini=!!o.mini;
+  var y0=mini?14:26,y1=mini?84:108,H=mini?108:138;
+  var A=[x0,y1],B=[x0+w,y1],C=[x0+w+s,y0],D=[x0+s,y0],fx=x0+s;
+  var g='<svg viewBox="0 0 300 '+H+'" xmlns="http://www.w3.org/2000/svg" role="img">';
+  g+='<polygon points="'+A+' '+B+' '+C+' '+D+'" fill="#ffe3ec" stroke="#e58ea8" stroke-width="2.5" stroke-linejoin="round"/>';
+  g+='<line x1="'+A[0]+'" y1="'+y1+'" x2="'+B[0]+'" y2="'+y1+'" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>';
+  g+='<line x1="'+fx+'" y1="'+y0+'" x2="'+fx+'" y2="'+y1+'" stroke="#2f80ed" stroke-width="2.5" stroke-dasharray="5 4"/>';
+  g+='<path d="M'+fx+' '+(y1-11)+' h11 v11" fill="none" stroke="#2f80ed" stroke-width="2"/>';
+  if(o.base)g+='<text x="'+(x0+w/2)+'" y="'+(y1+20)+'" text-anchor="middle" font-size="16" font-weight="800" fill="#b45f06">'+o.base+'</text>';
+  if(o.h)g+='<text x="'+(fx+14)+'" y="'+((y0+y1)/2+6)+'" font-size="16" font-weight="800" fill="#2f80ed">'+o.h+'</text>';
+  if(o.side)g+='<text x="'+(x0+w+s/2+8)+'" y="'+((y0+y1)/2+6)+'" font-size="15" font-weight="700" fill="#888">'+o.side+'</text>';
+  if(o.center)g+='<text x="'+(x0+w/2+s/2+30)+'" y="'+(y1-14)+'" text-anchor="middle" font-size="16" font-weight="800" fill="#c2255c">'+o.center+'</text>';
+  if(o.title)g+='<text x="8" y="'+(y0+24)+'" font-size="22" font-weight="900" fill="#c2255c">'+o.title+'</text>';
+  return g+'</svg>';
+}
+var svgQ1='<svg viewBox="0 0 300 138"><polygon points="45,108 215,108 255,26 85,26" fill="#ffe3ec" stroke="#e58ea8" stroke-width="2.5" stroke-linejoin="round"/>'+
+ '<line x1="45" y1="108" x2="215" y2="108" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>'+
+ '<line x1="45" y1="108" x2="255" y2="26" stroke="#999" stroke-width="2" stroke-dasharray="3 4"/>'+
+ '<line x1="85" y1="26" x2="85" y2="108" stroke="#2f80ed" stroke-width="2.5"/><path d="M85 97 h11 v11" fill="none" stroke="#2f80ed" stroke-width="2"/>'+
+ '<text x="130" y="128" text-anchor="middle" font-size="15" font-weight="800" fill="#b45f06">밑변</text>'+
+ '<text x="150" y="58" font-size="22" font-weight="900" fill="#555">㉠</text>'+
+ '<text x="248" y="76" font-size="22" font-weight="900" fill="#555">㉡</text>'+
+ '<text x="62" y="72" font-size="22" font-weight="900" fill="#555">㉢</text></svg>';
+var F='📌 평행사변형의 넓이 = 밑변 × 높이';
+function fm(t){return '<div class="formula">'+t+'</div>';}
+
+/* ---------- 문제 12문항 ---------- */
+var Q=[
+ {b:'높이 찾기',q:'다음 평행사변형에서 굵게 표시한 아랫변을 밑변으로 할 때, 높이에 해당하는 선분의 기호를 골라 보세요.',svg:svgQ1,kind:'choice',opts:['㉠','㉡','㉢'],ansC:'㉢',
+  ex:'높이는 <b>밑변에 수직인 선분</b>이에요. 직각 표시(ㄴ)가 있는 <b>㉢</b>이 높이예요. ㉠은 대각선, ㉡은 기울어진 변이에요.'},
+ {b:'밑변과 높이로 넓이 구하기',q:'다음 평행사변형의 넓이를 구해 보세요.',svg:para({s:45,base:'8 cm',h:'6 cm',side:'7 cm'}),kind:'num',unit:'㎠',ans:48,
+  ex:'기울어진 변(7 cm)은 높이가 아니에요! 밑변은 <b>8 cm</b>, 높이는 직각 표시가 있는 <b>6 cm</b>예요.'+fm('8 × 6 = 48 (㎠)')},
+ {b:'밑변과 높이로 넓이 구하기',q:'밑변이 11 cm이고 높이가 5 cm인 평행사변형의 넓이를 구해 보세요.',kind:'num',unit:'㎠',ans:55,
+  ex:'밑변은 <b>11 cm</b>, 높이는 <b>5 cm</b>예요.'+fm('11 × 5 = 55 (㎠)')},
+ {b:'계산 과정 완성',q:'밑변이 14 cm이고 높이가 5 cm인 평행사변형의 넓이를 구하려고 해요.<div class="formula">평행사변형의 넓이 = 밑변 × 높이<br>= 14 × 5<br>= □ (㎠)</div>□에 알맞은 수를 써 보세요.',kind:'num',unit:'㎠',ans:70,
+  ex:'밑변 <b>14</b>와 높이 <b>5</b>를 곱해요.'+fm('14 × 5 = 70 (㎠)')},
+ {b:'넓이가 같은 도형 찾기',q:'가, 나, 다의 넓이를 각각 구한 뒤, 넓이가 같은 두 도형을 골라 보세요.',
+  svg:para({mini:1,title:'가',s:30,base:'7 cm',h:'6 cm'})+para({mini:1,title:'나',s:45,base:'9 cm',h:'5 cm'})+para({mini:1,title:'다',s:20,base:'6 cm',h:'7 cm'}),
+  kind:'choice',opts:['가, 나','가, 다','나, 다'],ansC:'가, 다',
+  ex:'각각 밑변 × 높이를 구해요.'+fm('가: 7 × 6 = 42 ㎠<br>나: 9 × 5 = 45 ㎠<br>다: 6 × 7 = 42 ㎠')+'넓이가 같은 도형은 <b>가와 다</b>예요. 모양이 달라도 넓이는 같을 수 있어요!'},
+ {b:'잘못 구한 곳 고치기',q:'서준이는 다음 평행사변형의 넓이를 <b>9 × 6 = 54 (㎠)</b>라고 구했어요. 바르게 구한 넓이를 써 보세요.',svg:para({s:40,base:'9 cm',h:'4 cm',side:'6 cm'}),kind:'num',unit:'㎠',ans:36,
+  ex:'서준이는 기울어진 변(6 cm)을 높이로 잘못 사용했어요. 높이는 <b>직각 표시가 있는 4 cm</b>예요.'+fm('9 × 4 = 36 (㎠)')},
+ {b:'생활 속 문장제',q:'미술 시간에 밑변이 18 cm이고 높이가 7 cm인 평행사변형 모양의 색종이를 사용했어요. 이 색종이의 넓이는 몇 ㎠일까요?',kind:'num',unit:'㎠',ans:126,
+  ex:'밑변 <b>18 cm</b>, 높이 <b>7 cm</b>를 곱해요.'+fm('18 × 7 = 126 (㎠)')},
+ {b:'두 넓이 비교하기',q:'바닥에 붙일 안내 표시 두 개의 모양이에요.<br>가: 밑변 12 cm, 높이 5 cm<br>나: 밑변 10 cm, 높이 7 cm<br>넓이가 더 넓은 것을 고르고, 몇 ㎠ 더 넓은지 써 보세요.',kind:'compare',opts:['가','나'],ansC:'나',unit:'㎠',ans:10,
+  ex:'각각 넓이를 구해요.'+fm('가: 12 × 5 = 60 ㎠<br>나: 10 × 7 = 70 ㎠')+'<b>나</b>가 70 − 60 = <b>10 ㎠</b> 더 넓어요.'},
+ {b:'넓이로 높이 구하기',q:'넓이가 72 ㎠이고 밑변이 9 cm인 평행사변형의 높이는 몇 cm일까요?',svg:para({s:40,base:'9 cm',h:'□ cm',center:'넓이 72 ㎠'}),kind:'num',unit:'cm',ans:8,
+  ex:'높이를 □라 하면 9 × □ = 72예요. 넓이를 밑변으로 나누면 높이가 나와요.'+fm('72 ÷ 9 = 8 (cm)')},
+ {b:'넓이로 밑변 구하기',q:'평행사변형 모양 천 조각의 넓이는 90 ㎠이고 높이는 6 cm예요. 밑변의 길이는 몇 cm일까요?',svg:para({s:35,base:'□ cm',h:'6 cm',center:'넓이 90 ㎠'}),kind:'num',unit:'cm',ans:15,
+  ex:'밑변을 □라 하면 □ × 6 = 90이에요. 넓이를 높이로 나누면 밑변이 나와요.'+fm('90 ÷ 6 = 15 (cm)')},
+ {b:'단위가 다른 문장제',q:'평행사변형 모양의 꽃밭이 있어요. 밑변이 14 m, 높이가 9 m라면 꽃밭의 넓이는 몇 ㎡일까요?',svg:para({s:40,base:'14 m',h:'9 m'}),kind:'num',unit:'㎡',ans:126,
+  ex:'길이가 m이면 넓이는 ㎡로 나타내요.'+fm('14 × 9 = 126 (㎡)')},
+ {b:'모양이 달라도 같은 높이',q:'다음 평행사변형의 넓이를 구해 보세요. (기울어진 변의 길이에 속지 않도록 주의!)',svg:para({s:55,base:'10 cm',h:'6 cm',side:'8 cm'}),kind:'num',unit:'㎠',ans:60,
+  ex:'기울어진 변(8 cm)은 높이가 아니에요. 밑변 <b>10 cm</b>, 높이 <b>6 cm</b>를 곱해요.'+fm('10 × 6 = 60 (㎠)')}
+];
+
+/* ---------- 앱 로직 ---------- */
+var app=document.getElementById('app'),i=0,score=0,sel=null,done=false,res=[];
+function render(){
+  var q=Q[i],n=Q.length;done=false;sel=null;
+  var h='<div class="prog"><div class="bar"><i style="width:'+(i/n*100)+'%"></i></div><div class="num">'+(i+1)+' / '+n+'</div></div>';
+  h+='<div class="card"><span class="badge">'+(i+1)+'번 · '+q.b+'</span><div class="q">'+q.q+'</div>';
+  if(q.svg)h+='<div class="fig">'+q.svg+'</div>';
+  if(q.opts){h+='<div class="chips">'+q.opts.map(function(o){return '<button class="chip" data-v="'+o+'">'+o+'</button>';}).join('')+'</div>';}
+  if(q.kind!=='choice'){
+    h+='<div class="ansrow"><label for="ans">'+(q.kind==='compare'?'차이':'답')+'</label><input id="ans" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="?"><span class="unit">'+q.unit+'</span></div>';
+  }
+  h+='<div class="toast" id="toast"></div><div class="fb" id="fb"></div><button class="btn" id="go">정답 확인 ✅</button></div>';
+  app.innerHTML=h;
+  var chips=app.querySelectorAll('.chip');
+  chips.forEach(function(c){c.onclick=function(){if(done)return;sel=c.dataset.v;chips.forEach(function(x){x.classList.toggle('on',x===c);});};});
+  var inp=document.getElementById('ans');
+  if(inp)inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('go').click();}};
+  document.getElementById('go').onclick=function(){done?next():check();};
+}
+function check(){
+  var q=Q[i],toast=document.getElementById('toast'),inp=document.getElementById('ans'),v=null,ok;
+  toast.textContent='';
+  if(q.opts&&sel===null){toast.textContent='보기를 먼저 골라 주세요 👆';return;}
+  if(inp){
+    if(inp.value.trim()===''){toast.textContent='답을 숫자로 입력해 주세요 ✏️';return;}
+    v=parseFloat(inp.value.replace(/,/g,''));
+    if(isNaN(v)){toast.textContent='숫자만 입력해 주세요';return;}
+  }
+  if(q.kind==='choice')ok=(sel===q.ansC);
+  else if(q.kind==='compare')ok=(sel===q.ansC&&v===q.ans);
+  else ok=(v===q.ans);
+  done=true;res[i]=ok;if(ok)score++;
+  document.querySelectorAll('.chip').forEach(function(c){c.disabled=true;});
+  if(inp)inp.disabled=true;
+  var fb=document.getElementById('fb');
+  fb.className='fb '+(ok?'ok':'no');
+  fb.innerHTML=ok?'<b class="t">🎉 정답이에요!</b><br>'+q.ex
+    :'<b class="t">😢 아쉬워요, 다시 살펴볼까요?</b><div class="formula">'+F+'</div>'+q.ex+'<div style="margin-top:6px">✔ 정답: <b>'+(q.kind==='choice'?q.ansC:(q.kind==='compare'?q.ansC+' / '+q.ans+' '+q.unit:q.ans+' '+q.unit))+'</b></div>';
+  var go=document.getElementById('go');go.textContent=(i===Q.length-1)?'결과 보기 🏆':'다음 문제 ▶';go.className='btn next';
+  fb.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function next(){if(i<Q.length-1){i++;render();window.scrollTo(0,0);}else result();}
+function result(){
+  var n=Q.length,pct=score/n,em,msg;
+  if(pct===1){em='🏆';msg='만점! 평행사변형 넓이 박사님이에요!'}
+  else if(pct>=.8){em='🌟';msg='정말 잘했어요! 밑변과 높이를 잘 찾았어요.'}
+  else if(pct>=.6){em='😊';msg='좋아요! 틀린 문제만 다시 확인하면 완벽해요.'}
+  else{em='💪';msg='괜찮아요! 높이는 밑변에 수직인 선분이란 걸 기억하고 다시 도전해요.'}
+  var wr=[];res.forEach(function(r,k){if(!r)wr.push((k+1)+'번');});
+  app.innerHTML='<div class="prog"><div class="bar"><i style="width:100%"></i></div><div class="num">'+n+' / '+n+'</div></div>'+
+   '<div class="card res"><div class="em">'+em+'</div><p>나의 점수</p><div class="big">'+score+' / '+n+'</div><p><b>'+msg+'</b></p>'+
+   (wr.length?'<div class="wrongs">📝 다시 확인할 문제: '+wr.join(', ')+'</div>':'')+
+   '<button class="btn" id="re">다시 풀기 🔄</button></div>';
+  document.getElementById('re').onclick=function(){i=0;score=0;res=[];render();window.scrollTo(0,0);};
+}
+render();
+</script>
+</body>
+</html>
