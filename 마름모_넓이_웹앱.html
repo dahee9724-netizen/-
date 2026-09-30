@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>마름모의 넓이 — 칠판 실험실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --chalk-green:#1e3a2f;
+    --chalk-green-deep:#152920;
+    --chalk-white:#f4f1e6;
+    --paper:#faf6ec;
+    --paper-line:#e4dcc6;
+    --ink:#25291f;
+    --ink-soft:#5a5e50;
+    --mustard:#e2a53a;
+    --coral:#e2622f;
+    --teal:#3a8b82;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.headline{
+    font-family:'Gowun Batang',serif;
+    font-weight:700;
+    margin:0;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.05), transparent 60%),
+      var(--chalk-green);
+    color:var(--chalk-white);
+    padding:56px 0 64px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:6px solid var(--chalk-green-deep);
+  }
+  .hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(244,241,230,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,241,230,0.035) 1px, transparent 1px);
+    background-size:28px 28px;
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:'Gaegu',sans-serif;
+    font-size:1.05rem;
+    color:var(--mustard);
+    margin-bottom:6px;
+  }
+  .hero h1{
+    font-size:clamp(1.7rem, 5vw, 2.6rem);
+    line-height:1.35;
+    max-width:11ch;
+    position:relative;
+    z-index:1;
+  }
+  .hero p.sub{
+    max-width:46ch;
+    color:#d8d6c6;
+    margin-top:14px;
+    font-size:1.02rem;
+    position:relative; z-index:1;
+  }
+  .hero-stage{
+    margin-top:36px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    align-items:center;
+    position:relative; z-index:1;
+  }
+  @media (max-width:720px){ .hero-stage{grid-template-columns:1fr;} }
+
+  .rhombus-drag-box{
+    background:rgba(0,0,0,0.18);
+    border:1px solid rgba(244,241,230,0.18);
+    border-radius:var(--radius);
+    padding:14px;
+  }
+  .rhombus-drag-box svg{width:100%; height:auto; display:block; touch-action:none;}
+  .drag-hint{
+    font-family:'Gaegu',sans-serif;
+    font-size:.95rem;
+    color:var(--mustard);
+    text-align:center;
+    margin-top:6px;
+  }
+  .hero-readout{
+    background:rgba(244,241,230,0.06);
+    border:1px dashed rgba(244,241,230,0.3);
+    border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .hero-readout .row{display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(244,241,230,0.12); font-size:.98rem;}
+  .hero-readout .row:last-child{border-bottom:none;}
+  .hero-readout .row b{color:var(--chalk-white);}
+  .hero-readout .num-mustard{color:var(--mustard); font-weight:700;}
+  .hero-readout .num-coral{color:#f0a988; font-weight:700;}
+  .hero-readout .area-line{
+    margin-top:12px; padding-top:14px; border-top:1px solid rgba(244,241,230,0.25);
+    font-size:1.15rem; color:var(--chalk-white); font-weight:700;
+  }
+  .hero-readout .area-line span{color:var(--mustard);}
+
+  /* ---------- SECTION SHELL ---------- */
+  section.block{padding:56px 0;}
+  section.block.alt{background:#f2ecda;}
+  .kicker{
+    font-family:'Gaegu',sans-serif;
+    color:var(--coral);
+    font-size:1rem;
+    margin-bottom:6px;
+  }
+  .block h2{font-size:1.55rem; margin-bottom:10px;}
+  .block > .wrap > p.lead{color:var(--ink-soft); max-width:56ch; margin-bottom:28px;}
+
+  /* ---------- STEP ANIMATION ---------- */
+  .step-shell{
+    background:var(--chalk-green);
+    border-radius:22px;
+    padding:20px;
+    color:var(--chalk-white);
+  }
+  .step-shell svg{width:100%; max-width:520px; display:block; margin:0 auto;}
+  .step-controls{
+    display:flex; justify-content:center; gap:10px; margin-top:18px; flex-wrap:wrap;
+  }
+  .step-controls button{
+    background:transparent;
+    border:1.5px solid rgba(244,241,230,0.4);
+    color:var(--chalk-white);
+    padding:8px 16px;
+    border-radius:999px;
+    font-family:'Noto Sans KR',sans-serif;
+    font-size:.88rem;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .step-controls button.active{
+    background:var(--mustard);
+    border-color:var(--mustard);
+    color:var(--chalk-green-deep);
+    font-weight:700;
+  }
+  .step-caption{
+    text-align:center;
+    margin-top:16px;
+    font-size:1.02rem;
+    min-height:3.2em;
+  }
+  .step-caption b{color:var(--mustard);}
+  .step-caption .c2{color:#8fd0c6;}
+
+  /* ---------- PLAYGROUND ---------- */
+  .playground{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:30px;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:22px;
+    padding:26px;
+  }
+  @media (max-width:720px){ .playground{grid-template-columns:1fr;} }
+  .playground svg{width:100%; height:auto; display:block;}
+  .sliders label{
+    display:block; font-size:.92rem; color:var(--ink-soft); margin-bottom:6px; margin-top:18px;
+  }
+  .sliders label:first-child{margin-top:0;}
+  .sliders input[type=range]{
+    width:100%; accent-color:var(--coral);
+  }
+  .val-mustard{color:var(--mustard); font-weight:700;}
+  .val-coral{color:var(--coral); font-weight:700;}
+  .formula-card{
+    margin-top:20px;
+    background:#fff;
+    border:1.5px solid var(--paper-line);
+    border-radius:14px;
+    padding:16px 18px;
+    font-size:1.02rem;
+  }
+  .formula-card .result{
+    font-size:1.5rem; font-weight:700; color:var(--teal); margin-top:6px;
+  }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{
+    background:#fff;
+    border:1.5px solid var(--paper-line);
+    border-radius:18px;
+    padding:24px 26px;
+    max-width:560px;
+  }
+  .quiz-q{font-size:1.08rem; margin-bottom:14px;}
+  .quiz-q svg{display:block; margin:10px 0 16px;}
+  .quiz-choices{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .quiz-choices button{
+    padding:12px; border-radius:10px; border:1.5px solid var(--paper-line);
+    background:var(--paper); font-size:1rem; cursor:pointer; font-family:inherit;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .quiz-choices button:hover{border-color:var(--teal);}
+  .quiz-choices button.correct{background:#dcefe4; border-color:var(--teal); font-weight:700;}
+  .quiz-choices button.wrong{background:#f6dcd4; border-color:var(--coral);}
+  .quiz-feedback{margin-top:14px; font-size:.95rem; min-height:1.4em; color:var(--ink-soft);}
+  .quiz-next{margin-top:14px; display:none;}
+  .quiz-next button{
+    background:var(--chalk-green); color:var(--chalk-white); border:none;
+    padding:9px 18px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .quiz-score{font-size:.88rem; color:var(--ink-soft); margin-bottom:16px;}
+
+  /* ---------- QR ---------- */
+  .qr-card{
+    background:#fff;
+    border:1.5px solid var(--paper-line);
+    border-radius:18px;
+    padding:26px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:24px;
+    align-items:center;
+  }
+  @media (max-width:640px){ .qr-card{grid-template-columns:1fr;} }
+  .qr-card input[type=text]{
+    width:100%;
+    padding:11px 13px;
+    border:1.5px solid var(--paper-line);
+    border-radius:10px;
+    font-size:.95rem;
+    font-family:inherit;
+  }
+  .qr-card .row-btn{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;}
+  .qr-card button{
+    background:var(--coral); color:#fff; border:none;
+    padding:10px 18px; border-radius:999px; cursor:pointer; font-family:inherit; font-size:.92rem;
+  }
+  .qr-card button.secondary{
+    background:transparent; color:var(--ink); border:1.5px solid var(--paper-line);
+  }
+  #qrcode{
+    background:#fff; padding:10px; border-radius:12px; border:1.5px solid var(--paper-line);
+    display:flex; align-items:center; justify-content:center; min-width:150px; min-height:150px;
+  }
+  .qr-note{font-size:.85rem; color:var(--ink-soft); margin-top:10px;}
+
+  footer{
+    padding:34px 0 50px; text-align:center; color:var(--ink-soft); font-size:.85rem;
+  }
+  footer .std{
+    display:inline-block; margin-top:6px; padding:6px 14px; border:1px dashed var(--paper-line);
+    border-radius:999px; font-size:.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">칠판 실험실 · 5학년 2학기 도형과 측정</div>
+    <h1>마름모의 넓이,<br>손으로 움직여 알아보기</h1>
+    <p class="sub">꼭짓점을 드래그해서 마름모 모양을 바꿔 보세요. 두 대각선의 길이가 바뀌면 넓이도 함께 바뀌는 걸 눈으로 확인할 수 있어요.</p>
+
+    <div class="hero-stage">
+      <div class="rhombus-drag-box">
+        <svg id="heroSvg" viewBox="0 0 320 260"></svg>
+        <div class="drag-hint">☝ 위·아래 꼭짓점을 드래그해 보세요</div>
+      </div>
+      <div class="hero-readout">
+        <div class="row"><span>대각선 1 (가로)</span><b class="num-mustard" id="heroD1">160</b></div>
+        <div class="row"><span>대각선 2 (세로)</span><b class="num-coral" id="heroD2">120</span></b></div>
+        <div class="area-line">마름모 넓이 = <span id="heroArea">9,600</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="block">
+  <div class="wrap">
+    <div class="kicker">1단계 · 왜 그런 공식이 나올까?</div>
+    <h2>마름모를 직사각형에 가둬보기</h2>
+    <p class="lead">마름모를 딱 맞게 감싸는 직사각형을 그리면, 마름모 넓이가 그 직사각형의 정확히 절반이라는 걸 확인할 수 있어요. 버튼을 눌러 단계별로 살펴보세요.</p>
+
+    <div class="step-shell">
+      <svg id="stepSvg" viewBox="0 0 400 320"></svg>
+      <div class="step-controls" id="stepControls"></div>
+      <div class="step-caption" id="stepCaption"></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt">
+  <div class="wrap">
+    <div class="kicker">2단계 · 숫자로 직접 확인</div>
+    <h2>대각선 길이를 바꾸며 넓이 구하기</h2>
+    <p class="lead">슬라이더를 움직여 두 대각선의 길이를 정하면, 공식에 따라 넓이가 자동으로 계산돼요.</p>
+
+    <div class="playground">
+      <svg id="pgSvg" viewBox="0 0 300 260"></svg>
+      <div>
+        <div class="sliders">
+          <label>대각선 1 (가로) — <span class="val-mustard" id="pgD1Val">16</span> cm
+            <input type="range" id="pgD1" min="4" max="24" value="16">
+          </label>
+          <label>대각선 2 (세로) — <span class="val-coral" id="pgD2Val">12</span> cm
+            <input type="range" id="pgD2" min="4" max="24" value="12">
+          </label>
+        </div>
+        <div class="formula-card">
+          마름모의 넓이 = 대각선 × 대각선 ÷ 2<br>
+          = <span class="val-mustard" id="pgD1b">16</span> × <span class="val-coral" id="pgD2b">12</span> ÷ 2
+          <div class="result"><span id="pgResult">96</span> cm²</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="kicker">3단계 · 배운 것 확인하기</div>
+    <h2>퀴즈로 마무리</h2>
+    <p class="lead">문제를 풀어 보면서 공식을 스스로 적용해 보세요.</p>
+
+    <div class="quiz-card">
+      <div class="quiz-score" id="quizScore">0 / 0 정답</div>
+      <div class="quiz-q" id="quizQ"></div>
+      <div class="quiz-choices" id="quizChoices"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-next" id="quizNext"><button onclick="nextQuiz()">다음 문제 →</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt">
+  <div class="wrap">
+    <div class="kicker">선생님 / 진행자용</div>
+    <h2>QR 코드로 학생들에게 배포하기</h2>
+    <p class="lead">이 페이지를 학교 서버, 클래스팅, 학급 블로그 등에 올린 뒤 실제 접속 주소를 아래에 입력하면, 학생들이 스캔해서 바로 들어올 수 있는 QR 코드를 만들 수 있어요.</p>
+
+    <div class="qr-card">
+      <div>
+        <label style="display:block; font-size:.88rem; color:var(--ink-soft); margin-bottom:6px;">이 웹앱이 올라갈(또는 올라간) 주소</label>
+        <input type="text" id="qrUrl" placeholder="예: https://our-class.github.io/rhombus/">
+        <div class="row-btn">
+          <button onclick="makeQR()">QR 코드 만들기</button>
+          <button class="secondary" onclick="downloadQR()">이미지로 저장</button>
+        </div>
+        <div class="qr-note">참고: 이 파일 자체는 정적 HTML이라 GitHub Pages, 학교 웹하드, 구글 드라이브 공유 등 어떤 정적 호스팅에 올려도 그대로 작동해요.</div>
+      </div>
+      <div id="qrcode"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    2022 개정 교육과정 · 수학과 · 도형과 측정 영역(5–6학년군)에 맞춰 제작되었습니다.
+    <div class="std">성취기준 [6수03-15] 마름모를 비롯한 여러 가지 사각형의 넓이를 구하는 방법을 알고 구할 수 있다.</div>
+  </div>
+</footer>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+/* ================= HERO: draggable rhombus ================= */
+(function(){
+  const svg = document.getElementById('heroSvg');
+  const cx = 160, cy = 130;
+  let hw = 80, hh = 60; // half-widths (px in svg units, 1px = 1cm-ish for display)
+
+  function render(){
+    svg.innerHTML = "";
+    const top = [cx, cy-hh], right=[cx+hw, cy], bottom=[cx, cy+hh], left=[cx-hw, cy];
+
+    // enclosing rect (faint)
+    svg.appendChild(el('rect', {x:cx-hw, y:cy-hh, width:hw*2, height:hh*2, fill:'none', stroke:'rgba(244,241,230,0.18)', 'stroke-dasharray':'4 4'}));
+
+    // diagonals
+    svg.appendChild(el('line', {x1:left[0], y1:left[1], x2:right[0], y2:right[1], stroke:'#e2a53a', 'stroke-width':2}));
+    svg.appendChild(el('line', {x1:top[0], y1:top[1], x2:bottom[0], y2:bottom[1], stroke:'#e2977a', 'stroke-width':2}));
+
+    // rhombus
+    const pts = `${top.join(',')} ${right.join(',')} ${bottom.join(',')} ${left.join(',')}`;
+    svg.appendChild(el('polygon', {points:pts, fill:'rgba(232,165,58,0.18)', stroke:'#f4f1e6', 'stroke-width':2.5}));
+
+    // draggable handles
+    [['top',top],['bottom',bottom]].forEach(([id,p])=>{
+      const c = el('circle', {cx:p[0], cy:p[1], r:9, fill:'#1e3a2f', stroke:'#e2a53a', 'stroke-width':2.5, style:'cursor:grab;'});
+      c.dataset.handle = id;
+      svg.appendChild(c);
+    });
+
+    document.getElementById('heroD1').textContent = (hw*2).toFixed(0);
+    document.getElementById('heroD2').textContent = (hh*2).toFixed(0);
+    document.getElementById('heroArea').textContent = (hw*2*hh*2/2).toLocaleString();
+  }
+  render();
+
+  let dragging = null;
+  function svgPoint(evt){
+    const pt = svg.createSVGPoint();
+    const t = evt.touches ? evt.touches[0] : evt;
+    pt.x = t.clientX; pt.y = t.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  svg.addEventListener('pointerdown', (e)=>{
+    if(e.target.dataset && e.target.dataset.handle){ dragging = e.target.dataset.handle; }
+  });
+  window.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    const p = svgPoint(e);
+    if(dragging === 'top'){ hh = Math.max(24, Math.min(120, cy - p.y)); }
+    else { hh = Math.max(24, Math.min(120, p.y - cy)); }
+    render();
+  });
+  window.addEventListener('pointerup', ()=>{ dragging = null; });
+
+  // also allow horizontal adjust by dragging rhombus body left/right handles via left/right points (simple: click+drag anywhere adjusts hw slightly)
+  svg.addEventListener('dblclick', ()=>{ hw = hw===80?100:80; render(); });
+})();
+
+/* ================= STEP ANIMATION ================= */
+(function(){
+  const svg = document.getElementById('stepSvg');
+  const caption = document.getElementById('stepCaption');
+  const controlsWrap = document.getElementById('stepControls');
+  const steps = [
+    "마름모예요. 대각선 두 개가 직각으로 만나고 있어요.",
+    "마름모를 <b>꼭 맞게 감싸는 직사각형</b>을 그려볼게요. 가로 길이는 대각선1, 세로 길이는 대각선2와 같아요.",
+    "직사각형 안에서 마름모 부분(<b>진한 색</b>)과 남는 네 귀퉁이 삼각형(<span class='c2'>연한 색</span>)을 나눠 봤어요. 이 네 귀퉁이 삼각형들을 모으면 마름모와 <b>넓이가 똑같아요.</b>",
+    "그래서 마름모 넓이는 직사각형 넓이의 <b>정확히 절반</b>이에요.<br>직사각형 넓이 = 대각선 × 대각선<br>→ 마름모 넓이 = 대각선 × 대각선 ÷ 2"
+  ];
+  let cur = 0;
+
+  const cx=200, cy=160, hw=110, hh=80;
+  const top=[cx,cy-hh], right=[cx+hw,cy], bottom=[cx,cy+hh], left=[cx-hw,cy];
+  const rx0=cx-hw, ry0=cy-hh, rw=hw*2, rh=hh*2;
+
+  function draw(){
+    svg.innerHTML = "";
+    // rectangle outline (from step 2)
+    if(cur>=1){
+      svg.appendChild(el('rect', {x:rx0, y:ry0, width:rw, height:rh, fill:'none', stroke:'#f4f1e6', 'stroke-width':2, 'stroke-dasharray': cur>=1?'0':'5 5', opacity: cur>=1?1:0}));
+    }
+    // corner triangles (step 3)
+    if(cur>=2){
+      const corners = [
+        [[rx0,ry0],[left[0],left[1]],[top[0],top[1]]],
+        [[rx0+rw,ry0],[top[0],top[1]],[right[0],right[1]]],
+        [[rx0+rw,ry0+rh],[right[0],right[1]],[bottom[0],bottom[1]]],
+        [[rx0,ry0+rh],[bottom[0],bottom[1]],[left[0],left[1]]],
+      ];
+      corners.forEach(c=>{
+        svg.appendChild(el('polygon', {points:c.map(p=>p.join(',')).join(' '), fill:'rgba(143,208,198,0.35)', stroke:'#8fd0c6', 'stroke-width':1.5}));
+      });
+    }
+    // diagonals
+    if(cur>=0){
+      svg.appendChild(el('line', {x1:left[0],y1:left[1],x2:right[0],y2:right[1], stroke:'#e2a53a','stroke-width':2}));
+      svg.appendChild(el('line', {x1:top[0],y1:top[1],x2:bottom[0],y2:bottom[1], stroke:'#e2977a','stroke-width':2}));
+    }
+    // rhombus
+    const pts = `${top.join(',')} ${right.join(',')} ${bottom.join(',')} ${left.join(',')}`;
+    svg.appendChild(el('polygon', {points:pts, fill: cur>=2 ? 'rgba(232,165,58,0.55)' : 'rgba(232,165,58,0.25)', stroke:'#f4f1e6','stroke-width':2.5}));
+
+    // labels
+    if(cur>=1){
+      const t1 = el('text', {x:cx, y:ry0-10, fill:'#e2a53a', 'font-size':13, 'text-anchor':'middle'});
+      t1.textContent = '대각선 1';
+      svg.appendChild(t1);
+      const t2 = el('text', {x:rx0+rw+14, y:cy, fill:'#e2977a', 'font-size':13});
+      t2.textContent = '대각선 2';
+      svg.appendChild(t2);
+    }
+    if(cur>=3){
+      const t3 = el('text', {x:cx, y:cy+4, fill:'#152920', 'font-size':13, 'text-anchor':'middle', 'font-weight':'700'});
+      t3.textContent = '넓이 = 절반';
+      svg.appendChild(t3);
+    }
+
+    caption.innerHTML = steps[cur];
+    Array.from(controlsWrap.children).forEach((b,i)=>b.classList.toggle('active', i===cur));
+  }
+
+  controlsWrap.innerHTML = steps.map((_,i)=>`<button data-i="${i}">${i+1}단계</button>`).join('');
+  Array.from(controlsWrap.children).forEach(b=>{
+    b.addEventListener('click', ()=>{ cur = parseInt(b.dataset.i); draw(); });
+  });
+  draw();
+})();
+
+/* ================= PLAYGROUND ================= */
+(function(){
+  const svg = document.getElementById('pgSvg');
+  const d1 = document.getElementById('pgD1');
+  const d2 = document.getElementById('pgD2');
+
+  function draw(){
+    const v1 = parseInt(d1.value), v2 = parseInt(d2.value);
+    document.getElementById('pgD1Val').textContent = v1;
+    document.getElementById('pgD2Val').textContent = v2;
+    document.getElementById('pgD1b').textContent = v1;
+    document.getElementById('pgD2b').textContent = v2;
+    document.getElementById('pgResult').textContent = (v1*v2/2).toLocaleString();
+
+    const scale = 8;
+    const hw = v1*scale/2, hh = v2*scale/2;
+    const cx=150, cy=130;
+    const top=[cx,cy-hh], right=[cx+hw,cy], bottom=[cx,cy+hh], left=[cx-hw,cy];
+
+    svg.innerHTML = "";
+    svg.appendChild(el('rect', {x:cx-hw, y:cy-hh, width:hw*2, height:hh*2, fill:'none', stroke:'#cfc6a8', 'stroke-dasharray':'4 4'}));
+    svg.appendChild(el('line', {x1:left[0],y1:left[1],x2:right[0],y2:right[1], stroke:'#e2a53a','stroke-width':2.5}));
+    svg.appendChild(el('line', {x1:top[0],y1:top[1],x2:bottom[0],y2:bottom[1], stroke:'#e2622f','stroke-width':2.5}));
+    const pts = `${top.join(',')} ${right.join(',')} ${bottom.join(',')} ${left.join(',')}`;
+    svg.appendChild(el('polygon', {points:pts, fill:'rgba(58,139,130,0.18)', stroke:'#3a8b82','stroke-width':2.5}));
+  }
+  d1.addEventListener('input', draw);
+  d2.addEventListener('input', draw);
+  draw();
+})();
+
+/* ================= QUIZ ================= */
+let quizScore = 0, quizTotal = 0, quizAnswered=false;
+function genQuestion(){
+  const d1 = (Math.floor(Math.random()*8)+3)*2; // even numbers 6..20
+  const d2 = (Math.floor(Math.random()*8)+3)*2;
+  const answer = d1*d2/2;
+  const opts = new Set([answer]);
+  while(opts.size < 4){
+    const delta = (Math.floor(Math.random()*10)+1) * (Math.random()<0.5?-1:1) * 2;
+    const wrong = answer + delta;
+    if(wrong > 0) opts.add(wrong);
+  }
+  const arr = Array.from(opts).sort(()=>Math.random()-0.5);
+  return {d1, d2, answer, opts: arr};
+}
+let quizCurrent = null;
+function renderQuiz(){
+  quizCurrent = genQuestion();
+  quizAnswered = false;
+  const {d1,d2,answer,opts} = quizCurrent;
+  document.getElementById('quizScore').textContent = `${quizScore} / ${quizTotal} 정답`;
+  const qDiv = document.getElementById('quizQ');
+  qDiv.innerHTML = `대각선의 길이가 각각 ${d1}cm, ${d2}cm인 마름모가 있어요. 이 마름모의 넓이는 몇 cm²일까요?
+    <svg viewBox="0 0 260 140" width="220">
+      <line x1="30" y1="70" x2="230" y2="70" stroke="#e2a53a" stroke-width="2.5"/>
+      <line x1="130" y1="20" x2="130" y2="120" stroke="#e2622f" stroke-width="2.5"/>
+      <polygon points="130,20 230,70 130,120 30,70" fill="rgba(58,139,130,0.18)" stroke="#3a8b82" stroke-width="2.5"/>
+    </svg>`;
+  const choicesDiv = document.getElementById('quizChoices');
+  choicesDiv.innerHTML = "";
+  opts.forEach(opt=>{
+    const b = document.createElement('button');
+    b.textContent = opt + ' cm²';
+    b.onclick = ()=>checkAnswer(opt, answer, b);
+    choicesDiv.appendChild(b);
+  });
+  document.getElementById('quizFeedback').textContent = "";
+  document.getElementById('quizNext').style.display = 'none';
+}
+function checkAnswer(chosen, answer, btn){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  quizTotal++;
+  const buttons = document.querySelectorAll('#quizChoices button');
+  buttons.forEach(b=>{
+    const val = parseInt(b.textContent);
+    if(val === answer) b.classList.add('correct');
+    else if(b===btn) b.classList.add('wrong');
+  });
+  if(chosen === answer){
+    quizScore++;
+    document.getElementById('quizFeedback').textContent = `정답이에요! ${quizCurrent.d1} × ${quizCurrent.d2} ÷ 2 = ${answer}`;
+  } else {
+    document.getElementById('quizFeedback').textContent = `아쉬워요. ${quizCurrent.d1} × ${quizCurrent.d2} ÷ 2 = ${answer} 이 정답이에요.`;
+  }
+  document.getElementById('quizScore').textContent = `${quizScore} / ${quizTotal} 정답`;
+  document.getElementById('quizNext').style.display = 'block';
+}
+function nextQuiz(){ renderQuiz(); }
+renderQuiz();
+
+/* ================= QR ================= */
+let qrObj = null;
+function makeQR(){
+  const url = document.getElementById('qrUrl').value.trim() || location.href;
+  const holder = document.getElementById('qrcode');
+  holder.innerHTML = "";
+  qrObj = new QRCode(holder, { text: url, width:150, height:150, colorDark:"#1e3a2f", colorLight:"#ffffff" });
+}
+function downloadQR(){
+  const img = document.querySelector('#qrcode img') || document.querySelector('#qrcode canvas');
+  if(!img){ alert('먼저 "QR 코드 만들기" 버튼을 눌러주세요.'); return; }
+  const link = document.createElement('a');
+  link.download = 'rhombus-qr.png';
+  link.href = img.src || img.toDataURL();
+  link.click();
+}
+makeQR();
+</script>
+</body>
+</html>
